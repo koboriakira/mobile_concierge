@@ -2,6 +2,13 @@
 
 A new Flutter project.
 
+## 開発
+
+```shell
+flutter run -d chrome
+```
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
