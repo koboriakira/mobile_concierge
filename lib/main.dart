@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+const notionSecret = "dummy";
+
 void main() {
   runApp(MyApp());
 }
@@ -27,7 +29,7 @@ class _MyAppState extends State<MyApp> {
           Uri.parse(
               'https://6yhkmd3lcl.execute-api.ap-northeast-1.amazonaws.com/v1/task/inprogress/'),
           headers: <String, String>{
-            'access-token': 'dummy',
+            'access-token': notionSecret,
           });
       var responseBody = jsonDecode(response.body);
       var data = responseBody['data'];
