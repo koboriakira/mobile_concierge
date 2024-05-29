@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+const notionApiUrl =
+    "https://6yhkmd3lcl.execute-api.ap-northeast-1.amazonaws.com/v1";
+// const notionApiUrl = "http://localhost:10119";
 const notionSecret = "dummy";
 
 void main() {
@@ -17,6 +20,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String pageId = 'a';
   String statusCode = 'Loading...';
   String memoText = "";
 
@@ -24,23 +28,31 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     Timer.periodic(Duration(seconds: 60), (Timer t) async {
-      var response = await http.get(
-          // Uri.parse('http://localhost:10119/task/inprogress/'),
-          Uri.parse(
-              'https://6yhkmd3lcl.execute-api.ap-northeast-1.amazonaws.com/v1/task/inprogress/'),
+      var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
           headers: <String, String>{
             'access-token': notionSecret,
           });
       var responseBody = jsonDecode(response.body);
       var data = responseBody['data'];
-      // dataがnullでなければ、data.titleを取得する
+      var taskId = data != null ? data['id'] : "";
+      print(pageId);
       var title = data != null ? data['title'] : "タスクなし";
       var text = data != null ? data['text'] : "";
       setState(() {
+        pageId = taskId;
         statusCode = title;
         memoText = text;
       });
     });
+  }
+
+  Future<void> callAnotherApi() async {
+    var response = await http.post(
+      Uri.parse('$notionApiUrl/task/$pageId/complete'),
+      headers: <String, String>{
+        'access-token': notionSecret,
+      },
+    );
   }
 
   @override
@@ -59,14 +71,24 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                statusCode,
-                style: TextStyle(fontSize: 60),
+                pageId,
+                style: const TextStyle(fontSize: 10),
               ),
-              SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
+              const SizedBox(height: 20),
+              Text(
+                statusCode,
+                style: const TextStyle(fontSize: 60),
+              ),
+              const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
               Text(
                 memoText,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: callAnotherApi,
+                child: const Text('Call Another API'),
               ),
             ],
           ),
