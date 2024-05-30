@@ -2,11 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-const notionApiUrl =
-    "https://6yhkmd3lcl.execute-api.ap-northeast-1.amazonaws.com/v1";
-// const notionApiUrl = "http://localhost:10119";
-const notionSecret = "dummy";
+import 'config.dart'; // config.dartをインポートします。
 
 void main() {
   runApp(MyApp());
@@ -27,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    Timer.periodic(Duration(seconds: 60), (Timer t) async {
+    Timer.periodic(Duration(seconds: duration), (Timer t) async {
       var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
           headers: <String, String>{
             'access-token': notionSecret,
@@ -63,9 +59,9 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Fetch Data from API'),
-        ),
+        // appBar: AppBar(
+        //   title: Text('Fetch Data from API'),
+        // ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
