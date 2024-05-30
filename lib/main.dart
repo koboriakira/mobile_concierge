@@ -20,25 +20,20 @@ class _MyAppState extends State<MyApp> {
   String statusCode = 'Loading...';
   String memoText = "";
 
-  @override
-  void initState() {
-    super.initState();
-    Timer.periodic(Duration(seconds: duration), (Timer t) async {
-      var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
-          headers: <String, String>{
-            'access-token': notionSecret,
-          });
-      var responseBody = jsonDecode(response.body);
-      var data = responseBody['data'];
-      var taskId = data != null ? data['id'] : "";
-      print(pageId);
-      var title = data != null ? data['title'] : "タスクなし";
-      var text = data != null ? data['text'] : "";
-      setState(() {
-        pageId = taskId;
-        statusCode = title;
-        memoText = text;
-      });
+  Future<void> fetchTaskData() async {
+    var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
+        headers: <String, String>{
+          'access-token': notionSecret,
+        });
+    var responseBody = jsonDecode(response.body);
+    var data = responseBody['data'];
+    var taskId = data != null ? data['id'] : "";
+    var title = data != null ? data['title'] : "タスクなし";
+    var text = data != null ? data['text'] : "";
+    setState(() {
+      pageId = taskId;
+      statusCode = title;
+      memoText = text;
     });
   }
 
@@ -52,6 +47,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Timer.periodic(
+        const Duration(seconds: duration), (Timer t) => fetchTaskData());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
@@ -59,18 +61,10 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        // appBar: AppBar(
-        //   title: Text('Fetch Data from API'),
-        // ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(
-                pageId,
-                style: const TextStyle(fontSize: 10),
-              ),
-              const SizedBox(height: 20),
               Text(
                 statusCode,
                 style: const TextStyle(fontSize: 60),
