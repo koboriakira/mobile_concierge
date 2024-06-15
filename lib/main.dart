@@ -66,6 +66,9 @@ class _MyAppState extends State<MyApp> {
         'access-token': notionSecret,
       },
     );
+    var responseBody = jsonDecode(response.body);
+    var completedTask = responseBody['data'];
+    // print(completedTask)
   }
 
   Future<void> startTask(String taskPageId) async {
