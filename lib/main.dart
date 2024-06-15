@@ -20,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   String taskTitle = 'Loading...';
   String memoText = "";
   bool existsTask = false;
+  List currentTasks = [];
 
   Future<void> fetchImprogressTask() async {
     var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
@@ -42,10 +43,19 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
+    var currentTasksResponse = await http.get(
+        Uri.parse('$notionApiUrl/tasks/current'),
+        headers: <String, String>{
+          'access-token': notionSecret,
+        });
+    var currentTasksBody = jsonDecode(currentTasksResponse.body);
+    var currentTasksData = currentTasksBody['data'];
+
     setState(() {
       pageId = "";
       taskTitle = "タスクなし";
       memoText = "";
+      currentTasks = currentTasksData.sublist(0, 3);
     });
   }
 
