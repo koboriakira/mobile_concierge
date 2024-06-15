@@ -17,10 +17,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String pageId = 'a';
-  String statusCode = 'Loading...';
+  String taskTitle = 'Loading...';
   String memoText = "";
+  bool existsTask = false;
 
-  Future<void> fetchTaskData() async {
+  Future<void> fetchImprogressTask() async {
     var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
         headers: <String, String>{
           'access-token': notionSecret,
@@ -31,8 +32,9 @@ class _MyAppState extends State<MyApp> {
     var title = data != null ? data['title'] : "タスクなし";
     var text = data != null ? data['text'] : "";
     setState(() {
+      existsTask = data != null;
       pageId = taskId;
-      statusCode = title;
+      taskTitle = title;
       memoText = text;
     });
   }
@@ -49,8 +51,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    fetchImprogressTask();
     Timer.periodic(
-        const Duration(seconds: duration), (Timer t) => fetchTaskData());
+        const Duration(seconds: duration), (Timer t) => fetchImprogressTask());
   }
 
   @override
@@ -66,7 +69,7 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                statusCode,
+                taskTitle,
                 style: const TextStyle(fontSize: 60),
               ),
               const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。

@@ -1,6 +1,6 @@
 # mobile_concierge
 
-A new Flutter project.
+日々のタスク管理などのモバイルアプリ版。
 
 ## 開発
 
