@@ -28,15 +28,24 @@ class _MyAppState extends State<MyApp> {
         });
     var responseBody = jsonDecode(response.body);
     var data = responseBody['data'];
-    var taskId = data != null ? data['id'] : "";
-    var title = data != null ? data['title'] : "タスクなし";
-    var text = data != null ? data['text'] : "";
+
     setState(() {
       existsTask = data != null;
-      pageId = taskId;
-      taskTitle = title;
-      memoText = text;
     });
+
+    if (existsTask) {
+      setState(() {
+        pageId = data['id'];
+        taskTitle = data['title'];
+        memoText = data['text'];
+      });
+    } else {
+      setState(() {
+        pageId = "";
+        taskTitle = "タスクなし";
+        memoText = "";
+      });
+    }
   }
 
   Future<void> callAnotherApi() async {
