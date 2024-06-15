@@ -39,13 +39,14 @@ class _MyAppState extends State<MyApp> {
         taskTitle = data['title'];
         memoText = data['text'];
       });
-    } else {
-      setState(() {
-        pageId = "";
-        taskTitle = "タスクなし";
-        memoText = "";
-      });
+      return;
     }
+
+    setState(() {
+      pageId = "";
+      taskTitle = "タスクなし";
+      memoText = "";
+    });
   }
 
   Future<void> callAnotherApi() async {
