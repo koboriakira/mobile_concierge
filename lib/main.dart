@@ -43,20 +43,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    var currentTasksResponse = await http.get(
-        Uri.parse('$notionApiUrl/tasks/current'),
-        headers: <String, String>{
-          'access-token': notionSecret,
-        });
-    var currentTasksBody = jsonDecode(currentTasksResponse.body);
-    var currentTasksData = currentTasksBody['data'];
-
-    setState(() {
-      pageId = "";
-      taskTitle = "タスクなし";
-      memoText = "";
-      currentTasks = currentTasksData.sublist(0, 3);
-    });
+    fetchCurrentTasks();
   }
 
   Future<void> completeTask() async {
@@ -69,6 +56,11 @@ class _MyAppState extends State<MyApp> {
     var responseBody = jsonDecode(response.body);
     var completedTask = responseBody['data'];
     // print(completedTask)
+
+    setState(() {
+      existsTask = false;
+    });
+    fetchCurrentTasks();
   }
 
   Future<void> startTask(String taskPageId) async {
@@ -86,6 +78,24 @@ class _MyAppState extends State<MyApp> {
       pageId = startedTask['id'];
       taskTitle = startedTask['title'];
       memoText = startedTask['text'];
+    });
+  }
+
+  Future<void> fetchCurrentTasks() async {
+    var currentTasksResponse = await http.get(
+      Uri.parse('$notionApiUrl/tasks/current'),
+      headers: <String, String>{
+        'access-token': notionSecret,
+      },
+    );
+    var currentTasksBody = jsonDecode(currentTasksResponse.body);
+    var currentTasksData = currentTasksBody['data'];
+
+    setState(() {
+      pageId = "";
+      taskTitle = "タスクなし";
+      memoText = "";
+      currentTasks = currentTasksData.sublist(0, 3);
     });
   }
 
