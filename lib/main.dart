@@ -61,11 +61,29 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> callAnotherApi() async {
     var response = await http.post(
-      Uri.parse('$notionApiUrl/task/$pageId/complete'),
+      Uri.parse('$notionApiUrl/task/$pageId/start/'),
       headers: <String, String>{
         'access-token': notionSecret,
       },
     );
+  }
+
+  Future<void> startTask(String taskPageId) async {
+    var response = await http.post(
+      Uri.parse('$notionApiUrl/task/$taskPageId/start/'),
+      headers: <String, String>{
+        'access-token': notionSecret,
+      },
+    );
+    var responseBody = jsonDecode(response.body);
+    var startedTask = responseBody['data'];
+    // print(startedTask);
+    setState(() {
+      existsTask = true;
+      pageId = startedTask['id'];
+      taskTitle = startedTask['title'];
+      memoText = startedTask['text'];
+    });
   }
 
   Widget inprogressTaskColumn() {
@@ -98,6 +116,24 @@ class _MyAppState extends State<MyApp> {
         const Duration(seconds: duration), (Timer t) => fetchImprogressTask());
   }
 
+  Widget taskListView() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: currentTasks.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(currentTasks[index]['title']),
+          trailing: ElevatedButton(
+            child: const Text('開始する'),
+            onPressed: () {
+              startTask(currentTasks[index]['id']);
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -110,7 +146,7 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              existsTask ? inprogressTaskColumn() : Container(),
+              existsTask ? inprogressTaskColumn() : taskListView(),
             ],
           ),
         ),
