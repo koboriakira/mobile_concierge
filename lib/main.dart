@@ -59,9 +59,9 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> callAnotherApi() async {
+  Future<void> completeTask() async {
     var response = await http.post(
-      Uri.parse('$notionApiUrl/task/$pageId/start/'),
+      Uri.parse('$notionApiUrl/task/$pageId/complete/'),
       headers: <String, String>{
         'access-token': notionSecret,
       },
@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
         ),
         const SizedBox(height: 20),
         ElevatedButton(
-          onPressed: callAnotherApi,
+          onPressed: completeTask,
           child: const Text('Complete Task'),
         ),
       ],
