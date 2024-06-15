@@ -89,26 +89,24 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               existsTask
-                  ? Text(
-                      taskTitle,
-                      style: const TextStyle(fontSize: 60),
-                    )
-                  : Container(),
-              existsTask
-                  ? const SizedBox(height: 20)
-                  : Container(), // これはテキスト間のスペースを作るためです。
-              existsTask
-                  ? Text(
-                      memoText,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.left,
-                    )
-                  : Container(),
-              existsTask ? const SizedBox(height: 20) : Container(),
-              existsTask
-                  ? ElevatedButton(
-                      onPressed: callAnotherApi,
-                      child: const Text('Complete Task'),
+                  ? Column(
+                      children: <Widget>[
+                        Text(
+                          taskTitle,
+                          style: const TextStyle(fontSize: 60),
+                        ),
+                        const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
+                        Text(
+                          memoText,
+                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.left,
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: callAnotherApi,
+                          child: const Text('Complete Task'),
+                        ),
+                      ],
                     )
                   : Container(),
             ],
