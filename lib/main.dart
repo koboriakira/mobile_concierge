@@ -21,14 +21,11 @@ class _MyAppState extends State<MyApp> {
   String memoText = "";
   bool existsTask = false;
   List currentTasks = [];
+  bool isApiExecuting = false;
 
   Future<void> fetchImprogressTask() async {
-    var response = await http.get(Uri.parse('$notionApiUrl/task/inprogress/'),
-        headers: <String, String>{
-          'access-token': notionSecret,
-        });
-    var responseBody = jsonDecode(response.body);
-    var improgressTask = responseBody['data'];
+    var response = await getNotionApi('task/inprogress');
+    var improgressTask = response['data'];
 
     setState(() {
       existsTask = improgressTask != null;
@@ -47,16 +44,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> completeTask() async {
-    var response = await http.post(
-      Uri.parse('$notionApiUrl/task/$pageId/complete/'),
-      headers: <String, String>{
-        'access-token': notionSecret,
-      },
-    );
-    var responseBody = jsonDecode(response.body);
-    var completedTask = responseBody['data'];
+    var response = await postNotionApi('task/$pageId/complete/');
+    var completedTask = response['data'];
     // print(completedTask)
-
     setState(() {
       existsTask = false;
     });
@@ -64,14 +54,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> startTask(String taskPageId) async {
-    var response = await http.post(
-      Uri.parse('$notionApiUrl/task/$taskPageId/start/'),
-      headers: <String, String>{
-        'access-token': notionSecret,
-      },
-    );
-    var responseBody = jsonDecode(response.body);
-    var startedTask = responseBody['data'];
+    var response = await postNotionApi('task/$taskPageId/start/');
+    var startedTask = response['data'];
     // print(startedTask);
     setState(() {
       existsTask = true;
@@ -82,14 +66,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> fetchCurrentTasks() async {
-    var currentTasksResponse = await http.get(
-      Uri.parse('$notionApiUrl/tasks/current'),
-      headers: <String, String>{
-        'access-token': notionSecret,
-      },
-    );
-    var currentTasksBody = jsonDecode(currentTasksResponse.body);
-    var currentTasksData = currentTasksBody['data'];
+    var response = await getNotionApi('tasks/current');
+    var currentTasksData = response['data'];
 
     setState(() {
       pageId = "";
@@ -119,6 +97,38 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
     );
+  }
+
+  Future<dynamic> getNotionApi(String path) async {
+    setState(() {
+      isApiExecuting = true;
+    });
+    var response = await http.get(
+      Uri.parse('$notionApiUrl/$path/'),
+      headers: <String, String>{
+        'access-token': notionSecret,
+      },
+    );
+    setState(() {
+      isApiExecuting = false;
+    });
+    return jsonDecode(response.body);
+  }
+
+  Future<dynamic> postNotionApi(String path) async {
+    setState(() {
+      isApiExecuting = true;
+    });
+    var response = await http.post(
+      Uri.parse('$notionApiUrl/$path'),
+      headers: <String, String>{
+        'access-token': notionSecret,
+      },
+    );
+    setState(() {
+      isApiExecuting = false;
+    });
+    return jsonDecode(response.body);
   }
 
   @override
@@ -159,6 +169,7 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              isApiExecuting ? const CircularProgressIndicator() : Container(),
               existsTask ? inprogressTaskColumn() : taskListView(),
             ],
           ),
