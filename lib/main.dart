@@ -27,17 +27,17 @@ class _MyAppState extends State<MyApp> {
           'access-token': notionSecret,
         });
     var responseBody = jsonDecode(response.body);
-    var data = responseBody['data'];
+    var improgressTask = responseBody['data'];
 
     setState(() {
-      existsTask = data != null;
+      existsTask = improgressTask != null;
     });
 
     if (existsTask) {
       setState(() {
-        pageId = data['id'];
-        taskTitle = data['title'];
-        memoText = data['text'];
+        pageId = improgressTask['id'];
+        taskTitle = improgressTask['title'];
+        memoText = improgressTask['text'];
       });
       return;
     }
