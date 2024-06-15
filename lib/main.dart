@@ -68,6 +68,28 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget inprogressTaskColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          taskTitle,
+          style: const TextStyle(fontSize: 60),
+        ),
+        const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
+        Text(
+          memoText,
+          style: const TextStyle(fontSize: 16),
+          textAlign: TextAlign.left,
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: callAnotherApi,
+          child: const Text('Complete Task'),
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,27 +110,7 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              existsTask
-                  ? Column(
-                      children: <Widget>[
-                        Text(
-                          taskTitle,
-                          style: const TextStyle(fontSize: 60),
-                        ),
-                        const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
-                        Text(
-                          memoText,
-                          style: const TextStyle(fontSize: 16),
-                          textAlign: TextAlign.left,
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: callAnotherApi,
-                          child: const Text('Complete Task'),
-                        ),
-                      ],
-                    )
-                  : Container(),
+              existsTask ? inprogressTaskColumn() : Container(),
             ],
           ),
         ),
