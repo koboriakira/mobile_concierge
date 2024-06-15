@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   bool isApiExecuting = false;
 
   Future<void> fetchImprogressTask() async {
-    var response = await getNotionApi('task/inprogress');
+    var response = await getNotionApi('task/inprogress/');
     var improgressTask = response['data'];
 
     setState(() {
@@ -104,7 +104,7 @@ class _MyAppState extends State<MyApp> {
       isApiExecuting = true;
     });
     var response = await http.get(
-      Uri.parse('$notionApiUrl/$path/'),
+      Uri.parse('$notionApiUrl/$path'),
       headers: <String, String>{
         'access-token': notionSecret,
       },
