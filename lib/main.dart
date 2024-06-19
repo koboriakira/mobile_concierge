@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:mobile_concierge/task/domain/task_repository.dart';
+import 'package:mobile_concierge/task/infrastructure/task_repository_impl.dart';
 import 'config.dart'; // config.dartをインポートします。
 
 void main() {
@@ -23,16 +23,16 @@ class _MyAppState extends State<MyApp> {
   List currentTasks = [];
   bool isApiExecuting = false;
 
-  Future<void> fetchImprogressTask() async {
-    var response = await getNotionApi('task/inprogress/');
-    var improgressTask = response['data'];
+  final TaskRepository _taskRepository = TaskRepositoryImpl();
 
-    setState(() {
-      existsTask = improgressTask != null;
-    });
+  /// タスクの状態を最新の状態に更新します。
+  Future<void> upToDate() async {
+    final improgressTask = await _taskRepository.fetchInProgressTasks();
 
     if (existsTask) {
+      // 仕掛中タスクが存在する場合
       setState(() {
+        existsTask = true;
         pageId = improgressTask['id'];
         taskTitle = improgressTask['title'];
         memoText = improgressTask['text'];
@@ -40,40 +40,32 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    fetchCurrentTasks();
+    // 仕掛中タスクが存在しない場合
+    final currentTasksResponse = await _taskRepository.fetchCurrentTasks();
+    setState(() {
+      pageId = "";
+      taskTitle = "タスクなし";
+      memoText = "";
+      currentTasks = currentTasksResponse.sublist(0, 3);
+    });
   }
 
+  /// 仕掛中タスクを完了します。
   Future<void> completeTask() async {
-    var response = await postNotionApi('task/$pageId/complete/');
-    var completedTask = response['data'];
-    // print(completedTask)
+    var _ = await _taskRepository.completeTask(pageId);
     setState(() {
       existsTask = false;
     });
-    fetchCurrentTasks();
+    upToDate();
   }
 
   Future<void> startTask(String taskPageId) async {
-    var response = await postNotionApi('task/$taskPageId/start/');
-    var startedTask = response['data'];
-    // print(startedTask);
+    var startedTask = await _taskRepository.startTask(taskPageId);
     setState(() {
       existsTask = true;
       pageId = startedTask['id'];
       taskTitle = startedTask['title'];
       memoText = startedTask['text'];
-    });
-  }
-
-  Future<void> fetchCurrentTasks() async {
-    var response = await getNotionApi('tasks/current');
-    var currentTasksData = response['data'];
-
-    setState(() {
-      pageId = "";
-      taskTitle = "タスクなし";
-      memoText = "";
-      currentTasks = currentTasksData.sublist(0, 3);
     });
   }
 
@@ -99,44 +91,14 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Future<dynamic> getNotionApi(String path) async {
-    setState(() {
-      isApiExecuting = true;
-    });
-    var response = await http.get(
-      Uri.parse('$notionApiUrl/$path'),
-      headers: <String, String>{
-        'access-token': notionSecret,
-      },
-    );
-    setState(() {
-      isApiExecuting = false;
-    });
-    return jsonDecode(response.body);
-  }
-
-  Future<dynamic> postNotionApi(String path) async {
-    setState(() {
-      isApiExecuting = true;
-    });
-    var response = await http.post(
-      Uri.parse('$notionApiUrl/$path'),
-      headers: <String, String>{
-        'access-token': notionSecret,
-      },
-    );
-    setState(() {
-      isApiExecuting = false;
-    });
-    return jsonDecode(response.body);
-  }
-
   @override
   void initState() {
     super.initState();
-    fetchImprogressTask();
-    Timer.periodic(
-        const Duration(seconds: duration), (Timer t) => fetchImprogressTask());
+    // タスクの状態を最新の状態に更新
+    upToDate();
+
+    // タスクの状態を定期的に更新
+    Timer.periodic(const Duration(seconds: duration), (Timer t) => upToDate());
   }
 
   Widget taskListView() {
