@@ -17,32 +17,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  InprogressTask? inprogressTask;
   List<TodoTask> currentTasks = [];
   bool isApiExecuting = false;
   Duration elapsed = const Duration();
   Timer? timer;
-  DateTime updatedAt = DateTime.now();
-  InprogressTask? inprogressTask;
 
   final TaskRepository _taskRepository = TaskRepositoryImpl();
 
   /// タスクの状態を最新の状態に更新します。
   Future<void> upToDate() async {
-    final improgressTaskResponse = await _taskRepository.fetchInProgressTasks();
-    if (improgressTaskResponse != null) {
-      print("仕掛中タスクが存在する");
-      setState(() {
-        inprogressTask = improgressTaskResponse;
-      });
-      startTimer();
+    final improgressTask = await _taskRepository.fetchInProgressTasks();
+    setInprogressTask(improgressTask);
+    if (inprogressTask != null) {
       return;
     }
-    print("仕掛中タスクが存在しない");
 
     // 仕掛中タスクが存在しない場合
     final currentTasksResponse = await _taskRepository.fetchCurrentTasks();
     setState(() {
-      inprogressTask = null;
       currentTasks = currentTasksResponse.sublist(0, 3);
     });
   }
@@ -54,10 +47,36 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> startTask(String taskPageId) async {
-    final improgressTaskResponse = await _taskRepository.startTask(taskPageId);
-    startTimer();
+    final improgressTask = await _taskRepository.startTask(taskPageId);
+    setInprogressTask(improgressTask);
+  }
+
+  void setInprogressTask(InprogressTask? task) {
+    // タスクがnullの場合は、仕掛中タスクをクリアします。
+    if (task == null) {
+      setState(() {
+        inprogressTask = null;
+      });
+      timer?.cancel();
+      return;
+    }
+
+    if (task.pageId == inprogressTask?.pageId) {
+      return;
+    }
     setState(() {
-      inprogressTask = improgressTaskResponse;
+      inprogressTask = task;
+    });
+    startTimer();
+  }
+
+  void startTimer() {
+    elapsed = DateTime.now().difference(inprogressTask!.updatedAt);
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() {
+        // 経過時間を更新
+        elapsed = Duration(seconds: elapsed.inSeconds + 1);
+      });
     });
   }
 
@@ -69,18 +88,6 @@ class _MyAppState extends State<MyApp> {
 
     // タスクの状態を定期的に更新
     Timer.periodic(const Duration(seconds: duration), (Timer t) => upToDate());
-  }
-
-  void startTimer() {
-    // updatedAtから経過時間を計算
-    print(inprogressTask!.updatedAt);
-    elapsed = DateTime.now().difference(inprogressTask!.updatedAt);
-    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      setState(() {
-        // 経過時間を更新
-        elapsed = Duration(seconds: elapsed.inSeconds + 1);
-      });
-    });
   }
 
   @override
