@@ -126,20 +126,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget taskListView() {
-    return ListView.builder(
+    return ListView(
       shrinkWrap: true,
-      itemCount: currentTasks.length,
-      itemBuilder: (context, index) {
+      children: currentTasks.map((task) {
         return ListTile(
-          title: Text(currentTasks[index].title),
+          title: Text(task.title),
           trailing: ElevatedButton(
             child: const Text('開始する'),
             onPressed: () {
-              startTask(currentTasks[index].pageId);
+              startTask(task.pageId);
             },
           ),
         );
-      },
+      }).toList(),
     );
   }
 
