@@ -1,9 +1,11 @@
+import 'package:mobile_concierge/task/domain/task.dart';
+
 abstract class TaskRepository {
-  Future<dynamic> fetchInProgressTasks();
+  Future<InprogressTask?> fetchInProgressTasks();
 
   Future<dynamic> completeTask(String taskPageId);
 
-  Future<dynamic> startTask(String taskPageId);
+  Future<InprogressTask> startTask(String taskPageId);
 
-  Future<List<dynamic>> fetchCurrentTasks();
+  Future<List<TodoTask>> fetchCurrentTasks();
 }

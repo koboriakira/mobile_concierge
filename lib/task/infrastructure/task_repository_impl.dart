@@ -2,13 +2,18 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_concierge/config.dart';
+import 'package:mobile_concierge/task/domain/task.dart';
 import 'package:mobile_concierge/task/domain/task_repository.dart';
 
 class TaskRepositoryImpl implements TaskRepository {
   @override
-  Future<dynamic> fetchInProgressTasks() async {
+  Future<InprogressTask?> fetchInProgressTasks() async {
     final response = await _getNotionApi('task/inprogress/');
-    return response['data'];
+    final dynamic data = response['data'];
+    if (data == null || data['id'] == null) {
+      return null;
+    }
+    return InprogressTask(data['id'], data['title'], data['text']);
   }
 
   @override
@@ -18,15 +23,19 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<dynamic> startTask(String taskPageId) async {
+  Future<InprogressTask> startTask(String taskPageId) async {
     final response = await _postNotionApi('task/$taskPageId/start/');
-    return response['data'];
+    final dynamic data = response['data'];
+    return InprogressTask(data['id'], data['title'], data['text']);
   }
 
   @override
-  Future<List<dynamic>> fetchCurrentTasks() async {
+  Future<List<TodoTask>> fetchCurrentTasks() async {
     final response = await _getNotionApi('tasks/current');
-    return response['data'];
+    final List<dynamic> data = response['data'];
+    return data
+        .map((task) => TodoTask(task['id'], task['title'], task['text']))
+        .toList();
   }
 
   Future<dynamic> _getNotionApi(String path) async {
