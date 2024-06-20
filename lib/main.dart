@@ -90,7 +90,32 @@ class _MyAppState extends State<MyApp> {
         // 経過時間を更新
         elapsed = Duration(seconds: elapsed.inSeconds + 1);
       });
+
+      // 25分経過したらアラートを表示
+      if (elapsed.inMinutes == 25 && elapsed.inSeconds == 0) {
+        showAlert();
+      }
     });
+  }
+
+  void showAlert() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('時間経過'),
+          content: const Text('タスクの経過時間が25分を超えました。'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
