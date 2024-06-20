@@ -36,8 +36,8 @@ class TaskRepositoryImpl implements TaskRepository {
     final response = await _getNotionApi('tasks/current');
     final List<dynamic> data = response['data'];
     return data
-        .map((task) => TodoTask(task['id'], task['title'], task['text'],
-            DateTime.parse(task['updated_at'])))
+        .map((task) => TodoTask(
+            task['id'], task['title'], task['text'], _convertToDate(task)))
         .toList();
   }
 
@@ -59,5 +59,15 @@ class TaskRepositoryImpl implements TaskRepository {
       },
     );
     return jsonDecode(response.body);
+  }
+
+  DateTime? _convertToDate(dynamic responseData) {
+    if (responseData == null) {
+      return null;
+    }
+    if (responseData['pomodoro_start_datetime'] != null) {
+      return DateTime.parse(responseData);
+    }
+    return null;
   }
 }

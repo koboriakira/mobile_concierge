@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 sealed class Task {
   const Task._(this.pageId, this.title, this.text, this.updatedAt);
   const factory Task.inprogress(
-          String pageId, String title, String text, DateTime updatedAt) =
+          String pageId, String title, String text, DateTime? updatedAt) =
       InprogressTask;
   const factory Task.todo(
-      String pageId, String title, String text, DateTime updatedAt) = TodoTask;
+      String pageId, String title, String text, DateTime? updatedAt) = TodoTask;
 
   final String pageId;
   final String title;
   final String text;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   TextStyle titleTextStyle() {
     if (title.length < 10) {

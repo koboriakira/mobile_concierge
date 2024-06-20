@@ -84,7 +84,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void startTimer() {
-    elapsed = DateTime.now().difference(inprogressTask!.updatedAt);
+    timer?.cancel();
+    elapsed = DateTime.now().difference(inprogressTask!.updatedAt!);
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() {
         // 経過時間を更新
