@@ -13,7 +13,8 @@ class TaskRepositoryImpl implements TaskRepository {
     if (data == null || data['id'] == null) {
       return null;
     }
-    return InprogressTask(data['id'], data['title'], data['text']);
+    return InprogressTask(data['id'], data['title'], data['text'],
+        DateTime.parse(data['updated_at']));
   }
 
   @override
@@ -26,7 +27,8 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<InprogressTask> startTask(String taskPageId) async {
     final response = await _postNotionApi('task/$taskPageId/start/');
     final dynamic data = response['data'];
-    return InprogressTask(data['id'], data['title'], data['text']);
+    return InprogressTask(data['id'], data['title'], data['text'],
+        DateTime.parse(data['updated_at']));
   }
 
   @override
@@ -34,7 +36,8 @@ class TaskRepositoryImpl implements TaskRepository {
     final response = await _getNotionApi('tasks/current');
     final List<dynamic> data = response['data'];
     return data
-        .map((task) => TodoTask(task['id'], task['title'], task['text']))
+        .map((task) => TodoTask(task['id'], task['title'], task['text'],
+            DateTime.parse(task['updated_at'])))
         .toList();
   }
 

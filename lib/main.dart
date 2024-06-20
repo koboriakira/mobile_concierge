@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
   bool isApiExecuting = false;
   Duration elapsed = const Duration();
   Timer? timer;
+  DateTime updatedAt = DateTime.now();
 
   final TaskRepository _taskRepository = TaskRepositoryImpl();
 
@@ -50,12 +51,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setExistsTask(Task task) {
+    // タスクが切り替わった場合はタイマーをリセット
+    final isNeedResetTimer = task.pageId != pageId;
     setState(() {
       existsTask = task is InprogressTask; // 仕掛中タスクが存在する場合
       pageId = task.pageId;
       taskTitle = task.title;
       memoText = task.text;
+      updatedAt = task.updatedAt;
     });
+    if (isNeedResetTimer) {
+      timer?.cancel();
+      startTimer();
+    }
   }
 
   /// 仕掛中タスクを完了します。
@@ -78,16 +86,15 @@ class _MyAppState extends State<MyApp> {
 
     // タスクの状態を定期的に更新
     Timer.periodic(const Duration(seconds: duration), (Timer t) => upToDate());
-
-    startTimer();
   }
 
   void startTimer() {
-    elapsed = const Duration();
+    // updatedAtから経過時間を計算
+    elapsed = DateTime.now().difference(updatedAt);
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() {
         // 経過時間を更新
-        elapsed = Duration(seconds: t.tick);
+        elapsed = Duration(seconds: elapsed.inSeconds + 1);
       });
     });
   }
