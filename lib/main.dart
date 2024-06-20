@@ -27,15 +27,22 @@ class _MyAppState extends State<MyApp> {
 
   /// タスクの状態を最新の状態に更新します。
   Future<void> upToDate() async {
+    setState(() {
+      isApiExecuting = true;
+    });
     final improgressTask = await _taskRepository.fetchInProgressTasks();
     setInprogressTask(improgressTask);
     if (inprogressTask != null) {
+      setState(() {
+        isApiExecuting = false;
+      });
       return;
     }
 
     // 仕掛中タスクが存在しない場合
     final currentTasksResponse = await _taskRepository.fetchCurrentTasks();
     setState(() {
+      isApiExecuting = false;
       currentTasks = currentTasksResponse.sublist(0, 3);
     });
   }
@@ -150,14 +157,29 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              isApiExecuting ? const CircularProgressIndicator() : Container(),
-              inprogressTask != null ? inprogressTaskColumn() : taskListView(),
-            ],
-          ),
+        body: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  inprogressTask != null
+                      ? inprogressTaskColumn()
+                      : taskListView(),
+                ],
+              ),
+            ),
+            if (isApiExecuting)
+              Opacity(
+                opacity: 0.5, // 透明度を設定
+                child: Container(
+                  color: Colors.black, // 背景色を設定
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
