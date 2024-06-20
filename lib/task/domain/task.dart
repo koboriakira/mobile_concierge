@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 sealed class Task {
   const Task._(this.pageId, this.title, this.text, this.updatedAt);
   const factory Task.inprogress(
@@ -10,6 +12,16 @@ sealed class Task {
   final String title;
   final String text;
   final DateTime updatedAt;
+
+  TextStyle titleTextStyle() {
+    if (title.length < 10) {
+      return const TextStyle(fontSize: 64);
+    } else if (title.length < 20) {
+      return const TextStyle(fontSize: 48);
+    } else {
+      return const TextStyle(fontSize: 32);
+    }
+  }
 }
 
 /// 仕掛中タスク

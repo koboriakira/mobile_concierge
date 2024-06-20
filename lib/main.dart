@@ -17,24 +17,24 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String pageId = 'a';
-  String taskTitle = 'Loading...';
-  String memoText = "";
-  bool existsTask = false;
   List<TodoTask> currentTasks = [];
   bool isApiExecuting = false;
   Duration elapsed = const Duration();
   Timer? timer;
   DateTime updatedAt = DateTime.now();
+  InprogressTask? inprogressTask;
 
   final TaskRepository _taskRepository = TaskRepositoryImpl();
 
   /// タスクの状態を最新の状態に更新します。
   Future<void> upToDate() async {
-    final improgressTask = await _taskRepository.fetchInProgressTasks();
-    if (improgressTask != null) {
+    final improgressTaskResponse = await _taskRepository.fetchInProgressTasks();
+    if (improgressTaskResponse != null) {
       print("仕掛中タスクが存在する");
-      setExistsTask(improgressTask);
+      setState(() {
+        inprogressTask = improgressTaskResponse;
+      });
+      startTimer();
       return;
     }
     print("仕掛中タスクが存在しない");
@@ -42,40 +42,23 @@ class _MyAppState extends State<MyApp> {
     // 仕掛中タスクが存在しない場合
     final currentTasksResponse = await _taskRepository.fetchCurrentTasks();
     setState(() {
-      existsTask = false;
-      pageId = "";
-      taskTitle = "";
-      memoText = "";
+      inprogressTask = null;
       currentTasks = currentTasksResponse.sublist(0, 3);
     });
   }
 
-  void setExistsTask(Task task) {
-    // タスクが切り替わった場合はタイマーをリセット
-    final isNeedResetTimer = task.pageId != pageId;
-    setState(() {
-      existsTask = task is InprogressTask; // 仕掛中タスクが存在する場合
-      pageId = task.pageId;
-      taskTitle = task.title;
-      memoText = task.text;
-      updatedAt = task.updatedAt;
-    });
-    if (isNeedResetTimer) {
-      timer?.cancel();
-      startTimer();
-    }
-  }
-
   /// 仕掛中タスクを完了します。
   Future<void> completeTask() async {
-    var _ = await _taskRepository.completeTask(pageId);
+    var _ = await _taskRepository.completeTask(inprogressTask!.pageId);
     upToDate();
   }
 
   Future<void> startTask(String taskPageId) async {
-    final inprogressTask = await _taskRepository.startTask(taskPageId);
+    final improgressTaskResponse = await _taskRepository.startTask(taskPageId);
     startTimer();
-    setExistsTask(inprogressTask);
+    setState(() {
+      inprogressTask = improgressTaskResponse;
+    });
   }
 
   @override
@@ -90,7 +73,8 @@ class _MyAppState extends State<MyApp> {
 
   void startTimer() {
     // updatedAtから経過時間を計算
-    elapsed = DateTime.now().difference(updatedAt);
+    print(inprogressTask!.updatedAt);
+    elapsed = DateTime.now().difference(inprogressTask!.updatedAt);
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() {
         // 経過時間を更新
@@ -116,12 +100,12 @@ class _MyAppState extends State<MyApp> {
         ),
         const SizedBox(height: 20),
         Text(
-          taskTitle,
-          style: const TextStyle(fontSize: 60),
+          inprogressTask!.title,
+          style: inprogressTask!.titleTextStyle(),
         ),
         const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
         Text(
-          memoText,
+          inprogressTask!.text,
           style: const TextStyle(fontSize: 16),
           textAlign: TextAlign.left,
         ),
@@ -165,7 +149,7 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               isApiExecuting ? const CircularProgressIndicator() : Container(),
-              existsTask ? inprogressTaskColumn() : taskListView(),
+              inprogressTask != null ? inprogressTaskColumn() : taskListView(),
             ],
           ),
         ),
