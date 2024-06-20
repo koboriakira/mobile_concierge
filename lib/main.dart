@@ -6,7 +6,13 @@ import 'package:mobile_concierge/task/infrastructure/task_repository_impl.dart';
 import 'config.dart'; // config.dartをインポートします。
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    title: 'Mobile Concierge',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
