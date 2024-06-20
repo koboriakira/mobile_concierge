@@ -148,16 +148,16 @@ class _MyAppState extends State<MyApp> {
           inprogressTask!.title,
           style: inprogressTask!.titleTextStyle(),
         ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: completeTask,
+          child: const Text('Complete Task'),
+        ),
         const SizedBox(height: 20), // これはテキスト間のスペースを作るためです。
         Text(
           inprogressTask!.text,
           style: const TextStyle(fontSize: 16),
           textAlign: TextAlign.left,
-        ),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: completeTask,
-          child: const Text('Complete Task'),
         ),
       ],
     );
