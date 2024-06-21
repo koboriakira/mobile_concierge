@@ -46,22 +46,36 @@ class _MyAppState extends State<MyApp> {
     }
 
     // 仕掛中タスクが存在しない場合
-    final currentTasksResponse = await _taskRepository.fetchCurrentTasks();
+    var currentTasksResponse = await _taskRepository.fetchCurrentTasks();
+    // 3つ以上あったら、最初の3つだけ表示する
+    if (currentTasksResponse.length > 3) {
+      currentTasksResponse = currentTasksResponse.sublist(0, 3);
+    }
+
     setState(() {
       isApiExecuting = false;
-      currentTasks = currentTasksResponse.sublist(0, 3);
+      currentTasks = currentTasksResponse;
     });
   }
 
   /// 仕掛中タスクを完了します。
   Future<void> completeTask() async {
+    setState(() {
+      isApiExecuting = true;
+    });
     var _ = await _taskRepository.completeTask(inprogressTask!.pageId);
     upToDate();
   }
 
   Future<void> startTask(String taskPageId) async {
+    setState(() {
+      isApiExecuting = true;
+    });
     final improgressTask = await _taskRepository.startTask(taskPageId);
     setInprogressTask(improgressTask);
+    setState(() {
+      isApiExecuting = false;
+    });
   }
 
   void setInprogressTask(InprogressTask? task) {
