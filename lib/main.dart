@@ -125,8 +125,8 @@ class _MyAppState extends State<MyApp> {
             TextButton(
               child: const Text('再開'),
               onPressed: () {
-                isAlerted = false;
                 startTask(inprogressTask!.pageId);
+                isAlerted = false;
                 elapsed = const Duration();
                 Navigator.of(context).pop();
               },
@@ -134,8 +134,9 @@ class _MyAppState extends State<MyApp> {
             TextButton(
               child: const Text('終了'),
               onPressed: () {
-                isAlerted = false;
                 completeTask();
+                elapsed = const Duration();
+                isAlerted = false;
                 Navigator.of(context).pop();
               },
             ),
