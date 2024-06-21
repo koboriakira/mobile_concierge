@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   bool isApiExecuting = false;
   Duration elapsed = const Duration();
   Timer? timer;
+  bool isAlerted = false;
 
   final TaskRepository _taskRepository = TaskRepositoryImpl();
 
@@ -98,7 +99,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void startTimer() {
-    timer?.cancel();
     elapsed = DateTime.now().difference(inprogressTask!.updatedAt!);
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() {
@@ -107,7 +107,8 @@ class _MyAppState extends State<MyApp> {
       });
 
       // 25分経過したらアラートを表示
-      if (elapsed.inMinutes == 25 && elapsed.inSeconds == 0) {
+      if (elapsed.inMinutes >= pomodoro_timer_minutes && !isAlerted) {
+        isAlerted = true;
         showAlert();
       }
     });
@@ -119,11 +120,14 @@ class _MyAppState extends State<MyApp> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('時間経過'),
-          content: const Text('タスクの経過時間が25分を超えました。'),
+          content: const Text('タスクの経過時間が25分を超えました。休憩して再開してください。'),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: const Text('再開'),
               onPressed: () {
+                isAlerted = false;
+                startTask(inprogressTask!.pageId);
+                elapsed = const Duration();
                 Navigator.of(context).pop();
               },
             ),
