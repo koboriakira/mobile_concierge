@@ -8,6 +8,11 @@
 flutter run -d chrome
 ```
 
+## ビルド
+
+iPhoneをMacにつないで、XCodeを起動。
+
+
 
 ## Getting Started
 
