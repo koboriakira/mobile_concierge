@@ -131,6 +131,14 @@ class _MyAppState extends State<MyApp> {
                 Navigator.of(context).pop();
               },
             ),
+            TextButton(
+              child: const Text('終了'),
+              onPressed: () {
+                isAlerted = false;
+                completeTask();
+                Navigator.of(context).pop();
+              },
+            ),
           ],
         );
       },
