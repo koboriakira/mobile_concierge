@@ -27,8 +27,9 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<InprogressTask> startTask(String taskPageId) async {
     final response = await _postNotionApi('task/$taskPageId/start/');
     final dynamic data = response['data'];
-    return InprogressTask(data['id'], data['title'], data['text'],
-        DateTime.parse(data['updated_at']));
+    // 開始した場合は現時刻を開始時刻とする
+    return InprogressTask(
+        data['id'], data['title'], data['text'], DateTime.now());
   }
 
   @override
