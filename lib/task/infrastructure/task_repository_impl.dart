@@ -66,8 +66,11 @@ class TaskRepositoryImpl implements TaskRepository {
     if (responseData == null) {
       return null;
     }
-    if (responseData['pomodoro_start_datetime'] != null) {
-      return DateTime.parse(responseData);
+    final pomodoroStartDatetime = responseData['pomodoro_start_datetime'];
+    print(pomodoroStartDatetime);
+    if (pomodoroStartDatetime != null && pomodoroStartDatetime != "") {
+      // 2024-06-21T13:53:00+09:00 の形式をDateTimeに変換する
+      return DateTime.parse(pomodoroStartDatetime);
     }
     return null;
   }
