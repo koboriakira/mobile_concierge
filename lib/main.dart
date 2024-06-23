@@ -62,10 +62,13 @@ class _MyAppState extends State<MyApp> {
   /// 仕掛中タスクを完了します。
   Future<void> completeTask() async {
     setState(() {
+      isApiExecuting = true;
+    });
+    var _ = await _taskRepository.completeTask(inprogressTask!.pageId);
+    setState(() {
       inprogressTask = null;
       currentTasks = [];
     });
-    var _ = await _taskRepository.completeTask(inprogressTask!.pageId);
     upToDate();
   }
 
