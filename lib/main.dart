@@ -88,6 +88,7 @@ class _MyAppState extends State<MyApp> {
     if (task == null) {
       setState(() {
         inprogressTask = null;
+        elapsed = const Duration();
       });
       timer?.cancel();
       return;
